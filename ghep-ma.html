@@ -905,7 +905,7 @@ input[type="file"] { display: none; }
 <script>
 // ===== STATE =====
 let products = JSON.parse(localStorage.getItem('products') || '[]');
-let googleToken = null;
+let googleToken = localStorage.getItem('gToken') || null;
 let clientId = localStorage.getItem('gClientId') || '';
 let targetFolderId = localStorage.getItem('gFolderId') || '';
 
@@ -919,6 +919,13 @@ let currentSelectedCode = null;
 
 // ===== INIT =====
 document.getElementById('clientIdInput').value = clientId;
+  if (googleToken) {
+  document.getElementById('driveStatusName').textContent = 'Google Drive đã kết nối';
+  document.getElementById('driveStatusSub').innerHTML = '<span class="dot"></span>Sẵn sàng upload';
+  document.getElementById('driveLoginBtn').textContent = '✓ Đã đăng nhập';
+  document.getElementById('driveLoginBtn').style.color = 'var(--green)';
+  document.getElementById('driveLoginBtn').style.borderColor = 'var(--green)';
+}
 document.getElementById('folderIdInput').value = targetFolderId;
 updateFolderIdPreview();
 updateFolderName();
@@ -986,7 +993,7 @@ function onBulkFilesChosen(input) {
   if (!files.length) return;
 
   // Sort by filename a→z
-  files.sort((a, b) => a.name.localeCompare(b.name));
+  files.sort((a, b) => a.lastModified - b.lastModified);
 
   // Group into sets of 4
   bulkGroups = [];
@@ -1312,6 +1319,7 @@ function testDriveLogin() {
   if (hash && hash.includes('access_token')) {
     const params = new URLSearchParams(hash.substring(1));
     googleToken = params.get('access_token');
+    localStorage.setItem('gToken', googleToken);
     history.replaceState(null, '', window.location.pathname);
     document.getElementById('driveStatusName').textContent = 'Google Drive đã kết nối';
     document.getElementById('driveStatusSub').innerHTML = '<span class="dot"></span>Sẵn sàng upload';
