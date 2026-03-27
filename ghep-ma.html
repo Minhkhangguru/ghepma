@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ghép Mã">
+<meta name="theme-color" content="#1a1a2e">
+<title>Ghép Mã Sản Phẩm</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --bg: #0f0f1a;
+  --card: #1a1a2e;
+  --card2: #22223a;
+  --border: #2e2e50;
+  --accent: #e94560;
+  --accent2: #ff6b9d;
+  --blue: #4cc9f0;
+  --green: #06d6a0;
+  --yellow: #ffd60a;
+  --text: #f0f0ff;
+  --text2: #8888aa;
+  --text3: #4a4a70;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  padding: 52px 20px 16px;
+  background: linear-gradient(180deg, #1a1a2e 0%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.app-title { font-size: 22px; font-weight: 900; color: var(--text); }
+.app-title span { color: var(--accent); }
+.header-actions { display: flex; gap: 10px; }
+.icon-btn {
+  width: 40px; height: 40px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.icon-btn:active { transform: scale(0.92); background: var(--border); }
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 16px calc(var(--safe-bottom) + 90px);
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  text-align: center;
+  padding: 20px;
+}
+.empty-icon {
+  width: 100px; height: 100px;
+  background: var(--card2);
+  border-radius: 30px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px;
+  border: 2px dashed var(--border);
+}
+.empty-title { font-size: 20px; font-weight: 800; }
+.empty-sub { font-size: 14px; color: var(--text2); line-height: 1.6; max-width: 260px; }
+
+/* ===== FAB ===== */
+.fab {
+  position: fixed;
+  bottom: calc(var(--safe-bottom) + 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  border: none;
+  border-radius: 99px;
+  padding: 16px 32px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(233,69,96,0.45);
+  transition: all 0.15s;
+  white-space: nowrap;
+  z-index: 100;
+}
+.fab:active { transform: translateX(-50%) scale(0.95); }
+
+/* ===== PRODUCT CARD ===== */
+.product-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.product-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.product-code-display {
+  font-size: 16px; font-weight: 900;
+  color: var(--accent2);
+  letter-spacing: 0.05em;
+}
+.product-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.card-actions { display: flex; gap: 8px; }
+.card-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--text2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.card-btn:active { opacity: 0.7; }
+.card-btn.danger { color: var(--accent); border-color: var(--accent); }
+
+.img-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 2px;
+}
+.img-cell {
+  aspect-ratio: 1;
+  background: var(--card2);
+  position: relative;
+  overflow: hidden;
+}
+.img-cell img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.img-cell .code-overlay {
+  position: absolute;
+  bottom: 4px; right: 4px;
+  background: rgba(0,0,0,0.85);
+  color: white;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+/* ===== BOTTOM SHEET / MODAL ===== */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  backdrop-filter: blur(4px);
+}
+.overlay.active { display: block; }
+
+.sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--card);
+  border-radius: 28px 28px 0 0;
+  z-index: 201;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding-bottom: calc(var(--safe-bottom) + 16px);
+}
+.sheet.active { transform: translateY(0); }
+
+.sheet-handle {
+  width: 40px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 14px auto 0;
+}
+.sheet-title {
+  font-size: 18px; font-weight: 900;
+  padding: 16px 20px 0;
+}
+.sheet-sub {
+  font-size: 13px; color: var(--text2);
+  padding: 4px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ===== ASSIGN SHEET ===== */
+.assign-preview {
+  padding: 16px 20px 8px;
+}
+.assign-img-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.assign-img-cell {
+  aspect-ratio: 1;
+  background: var(--card2);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.assign-img-cell img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.assign-img-cell .img-num {
+  position: absolute;
+  top: 4px; left: 4px;
+  background: rgba(0,0,0,0.65);
+  color: white;
+  font-size: 9px; font-weight: 800;
+  width: 18px; height: 18px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.assign-progress-label {
+  font-size: 12px; color: var(--text2);
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.code-list-label {
+  font-size: 12px; font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 20px 8px;
+}
+.code-list {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.code-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.code-list-item:active { transform: scale(0.97); }
+.code-list-item.selected {
+  border-color: var(--green);
+  background: rgba(6,214,160,0.1);
+}
+.code-list-item .code-text {
+  font-size: 15px; font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--accent2);
+}
+.code-list-item .code-check {
+  font-size: 18px;
+  opacity: 0;
+}
+.code-list-item.selected .code-check { opacity: 1; }
+
+/* ===== PASTE CODES SHEET ===== */
+.paste-section {
+  padding: 16px 20px;
+}
+.pick-label {
+  font-size: 12px; font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.codes-textarea {
+  width: 100%;
+  background: var(--card2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+  resize: none;
+  line-height: 1.8;
+  min-height: 160px;
+  transition: border-color 0.2s;
+}
+.codes-textarea:focus { border-color: var(--accent2); }
+.codes-textarea::placeholder { color: var(--text3); font-weight: 600; }
+.codes-count {
+  font-size: 12px; color: var(--text2);
+  margin-top: 8px;
+  text-align: right;
+}
+
+/* ===== SHEET ACTIONS ===== */
+.sheet-actions {
+  padding: 12px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-main {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-main:active { opacity: 0.8; transform: scale(0.98); }
+.btn-main:disabled { opacity: 0.35; }
+.btn-secondary {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ===== BULK IMPORT STEP INDICATOR ===== */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 20px 0;
+}
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.2s;
+}
+.step-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--accent);
+}
+.step-dot.done { background: var(--green); }
+
+/* ===== WARNING BANNER ===== */
+.warn-banner {
+  background: rgba(233,69,96,0.12);
+  border: 1px solid rgba(233,69,96,0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 0 20px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent2);
+  line-height: 1.6;
+}
+.warn-banner.green {
+  background: rgba(6,214,160,0.1);
+  border-color: rgba(6,214,160,0.3);
+  color: var(--green);
+}
+
+/* ===== DRIVE SECTION ===== */
+.drive-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.drive-status {
+  display: flex; align-items: center; gap: 12px;
+}
+.drive-icon {
+  width: 44px; height: 44px;
+  background: #1a73e8;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.drive-info { flex: 1; }
+.drive-name { font-size: 14px; font-weight: 800; }
+.drive-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 4px; }
+.dot.red { background: var(--accent); }
+
+/* ===== EXPORT SECTION ===== */
+.export-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.export-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+.export-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+.folder-name {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ===== PROGRESS ===== */
+.progress-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  display: none;
+}
+.progress-title { font-size: 14px; font-weight: 800; margin-bottom: 12px; }
+.progress-bar-bg {
+  background: var(--card2);
+  border-radius: 99px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 99px;
+  transition: width 0.4s;
+  width: 0%;
+}
+.progress-log {
+  font-size: 11px; color: var(--text2);
+  margin-top: 6px;
+  line-height: 1.8;
+  max-height: 80px;
+  overflow-y: auto;
+}
+.progress-log .ok { color: var(--green); }
+.progress-log .err { color: var(--accent); }
+
+/* ===== SETUP SCREEN ===== */
+.setup-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.setup-step {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.setup-step:last-child { border-bottom: none; }
+.step-circle {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 14px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-content { flex: 1; }
+.step-title { font-size: 14px; font-weight: 800; margin-bottom: 3px; }
+.step-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.step-desc code {
+  background: var(--card2);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--blue);
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  top: 60px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px; font-weight: 700;
+  z-index: 999;
+  opacity: 0;
+  transition: all 0.3s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== NAV TABS ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 10px 0 calc(var(--safe-bottom));
+  z-index: 50;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.nav-item:active { opacity: 0.7; }
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 10px; font-weight: 700; color: var(--text3); }
+.nav-item.active .nav-label { color: var(--accent); }
+
+canvas { display: none; }
+input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="app-header">
+    <div class="app-title">Ghép <span>Mã</span></div>
+    <div class="header-actions">
+      <div class="icon-btn" onclick="showToast('📦 ' + products.length + ' sản phẩm')">📦</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- HOME SCREEN -->
+    <div class="screen active" id="screen-home">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">📸</div>
+        <div class="empty-title">Chưa có sản phẩm nào</div>
+        <div class="empty-sub">Nhấn nút bên dưới để chọn nhiều ảnh cùng lúc, app tự nhóm 4 ảnh thành 1 sản phẩm</div>
+      </div>
+      <div id="productList"></div>
+    </div>
+
+    <!-- EXPORT SCREEN -->
+    <div class="screen" id="screen-export">
+      <div class="drive-card">
+        <div class="drive-status">
+          <div class="drive-icon">🗂️</div>
+          <div class="drive-info">
+            <div class="drive-name" id="driveStatusName">Chưa kết nối Google Drive</div>
+            <div class="drive-sub" id="driveStatusSub"><span class="dot red"></span>Cần đăng nhập để upload</div>
+          </div>
+          <button class="card-btn" id="driveLoginBtn" onclick="loginGoogle()" style="color:var(--blue);border-color:var(--blue);">Đăng nhập</button>
+        </div>
+      </div>
+
+      <div class="export-card">
+        <div class="export-title">📁 Thư mục xuất</div>
+        <div class="export-sub">Subfolder theo ngày sẽ được tạo bên trong thư mục Drive đã chọn</div>
+        <div class="folder-name">📅 <span id="folderNameDisplay"></span></div>
+        <div id="exportSummary" style="font-size:13px;color:var(--text2);margin-bottom:12px;"></div>
+        <button class="btn-main" id="exportBtn" onclick="startExport()" disabled>
+          ☁️ Ghép mã & Upload Drive
+        </button>
+      </div>
+
+      <div class="progress-card" id="progressCard">
+        <div class="progress-title">⏳ Đang xử lý...</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-log" id="progressLog"></div>
+      </div>
+
+      <div class="export-card" style="background:rgba(6,214,160,0.08);border-color:var(--green);display:none;" id="doneCard">
+        <div style="font-size:15px;font-weight:800;color:var(--green);margin-bottom:4px;">✅ Hoàn thành!</div>
+        <div style="font-size:13px;color:var(--text2);">Tất cả ảnh đã được upload lên Google Drive thành công.</div>
+      </div>
+    </div>
+
+    <!-- SETUP SCREEN -->
+    <div class="screen" id="screen-setup">
+      <div class="setup-card">
+        <div style="font-size:17px;font-weight:900;margin-bottom:4px;">🚀 Cài lên màn hình iPhone</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Để dùng như app thật, cài app này lên màn hình chính:</div>
+        <div class="setup-step">
+          <div class="step-circle">1</div>
+          <div class="step-content">
+            <div class="step-title">Mở trong Safari</div>
+            <div class="step-desc">App phải mở bằng Safari (không phải Chrome). Copy link file và mở bằng Safari.</div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-circle">2</div>
+          <div class="step-content">
+            <div class="step-title">Nhấn nút Share</div>
+            <div class="step-desc">Nhấn nút <code>⎙ Share</code> ở thanh dưới Safari (hình vuông có mũi tên lên)</div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-circle">3</div>
+          <div class="step-content">
+            <div class="step-title">Add to Home Screen</div>
+            <div class="step-desc">Cuộn xuống → chọn <code>Add to Home Screen</code> → nhấn <code>Add</code></div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-circle">4</div>
+          <div class="step-content">
+            <div class="step-title">Xong! Mở app từ màn hình chính</div>
+            <div class="step-desc">App hiện trên màn hình như app thật, fullscreen, không có thanh Safari.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <div style="font-size:15px;font-weight:900;margin-bottom:12px;">🔑 Kết nối Google Drive</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;">
+          Để upload ảnh tự động lên Drive, bạn cần nhập <strong>Google Client ID</strong>:
+        </div>
+        <div class="setup-step" style="border:none;padding:0 0 16px;">
+          <div class="step-circle" style="background:var(--blue);">G</div>
+          <div class="step-content">
+            <div class="step-title">Lấy Google Client ID</div>
+            <div class="step-desc">
+              1. Vào <code>console.cloud.google.com</code><br>
+              2. Tạo project mới → <code>APIs & Services</code><br>
+              3. Bật <code>Google Drive API</code><br>
+              4. Tạo <code>OAuth 2.0 Client ID</code> → chọn <code>Web application</code><br>
+              5. Copy Client ID dán vào ô dưới
+            </div>
+          </div>
+        </div>
+        <div>
+          <input id="clientIdInput" type="text" placeholder="Dán Google Client ID vào đây..."
+            style="width:100%;background:var(--card2);border:2px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:13px;outline:none;margin-bottom:10px;"
+            oninput="saveClientId()">
+        </div>
+      </div>
+
+      <!-- NEW: Drive Folder Setting -->
+      <div class="setup-card">
+        <div style="font-size:15px;font-weight:900;margin-bottom:8px;">📂 Thư mục Drive đích</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;">
+          Dán <strong>Folder ID</strong> hoặc <strong>link thư mục Drive</strong>. App sẽ tạo subfolder theo ngày bên trong.
+        </div>
+        <input id="folderIdInput" type="text" placeholder="ID hoặc link thư mục Drive..."
+          style="width:100%;background:var(--card2);border:2px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:13px;outline:none;margin-bottom:8px;"
+          oninput="saveFolderId()">
+        <div id="folderIdPreview" style="font-size:12px;color:var(--text2);margin-bottom:12px;"></div>
+        <button class="btn-main" onclick="testDriveLogin()">🔑 Kiểm tra kết nối</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Sản phẩm</div>
+    </div>
+    <div class="nav-item" id="nav-export" onclick="switchTab('export')">
+      <div class="nav-icon">☁️</div>
+      <div class="nav-label">Xuất & Upload</div>
+    </div>
+    <div class="nav-item" id="nav-setup" onclick="switchTab('setup')">
+      <div class="nav-icon">⚙️</div>
+      <div class="nav-label">Cài đặt</div>
+    </div>
+  </div>
+</div><!-- /app -->
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="openBulkImport()">
+  <span>＋</span> Thêm ảnh hàng loạt
+</button>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeAllSheets()"></div>
+
+<!-- ===== SHEET: BULK IMPORT (Step 1 - chọn ảnh + paste mã) ===== -->
+<div class="sheet" id="importSheet">
+  <div class="sheet-handle"></div>
+
+  <!-- Step dots -->
+  <div class="step-indicator">
+    <div class="step-dot active" id="sdot-0"></div>
+    <div class="step-dot" id="sdot-1"></div>
+    <div class="step-dot" id="sdot-2"></div>
+  </div>
+
+  <!-- Step 1: Chọn ảnh -->
+  <div id="importStep1">
+    <div class="sheet-title">Chọn ảnh hàng loạt</div>
+    <div class="sheet-sub">Chọn 1 lần nhiều ảnh — app tự sắp xếp a→z và nhóm 4 ảnh/sản phẩm</div>
+    <div style="padding:20px;">
+      <!-- iOS Safari: bọc bằng label for= để trigger input file chắc chắn -->
+      <label for="bulkFileInput" id="importPickArea"
+        style="display:block;border:2px dashed var(--border);border-radius:var(--radius);padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;">
+        <div style="font-size:48px;margin-bottom:12px;">📸</div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:6px;">Nhấn để chọn ảnh</div>
+        <div style="font-size:13px;color:var(--text2);">Chọn nhiều ảnh cùng lúc từ thư viện</div>
+      </label>
+      <div id="importPickedInfo" style="display:none;margin-top:16px;">
+        <div class="warn-banner green" id="importPickedBanner"></div>
+        <div id="importGroupPreview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;max-height:180px;overflow-y:auto;"></div>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-main" id="toStep2Btn" onclick="goToStep2()" disabled>Tiếp theo → Paste mã</button>
+      <button class="btn-secondary" onclick="closeAllSheets()">Huỷ</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Paste mã -->
+  <div id="importStep2" style="display:none;">
+    <div class="sheet-title">Danh sách mã</div>
+    <div class="sheet-sub" id="step2Sub">Paste mã vào đây — mỗi dòng 1 mã</div>
+    <div class="paste-section">
+      <div class="pick-label">🏷️ Danh sách mã sản phẩm</div>
+      <textarea class="codes-textarea" id="codesTextarea" placeholder="Nhập hoặc paste mã vào đây&#10;Mỗi mã một dòng&#10;VD:&#10;ABC-001&#10;ABC-002&#10;..." oninput="onCodesInput()"></textarea>
+      <div class="codes-count" id="codesCount">0 mã</div>
+      <div id="codesMismatchWarn" style="display:none;" class="warn-banner" style="margin:0;">
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-main" id="toStep3Btn" onclick="goToStep3()" disabled>Tiếp theo → Gán mã</button>
+      <button class="btn-secondary" onclick="backToStep1()">← Quay lại</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Gán mã cho từng nhóm -->
+  <div id="importStep3" style="display:none;">
+    <div class="sheet-title" id="step3Title">Gán mã cho nhóm 1</div>
+    <div class="sheet-sub" id="step3Sub">Chọn mã từ danh sách bên dưới</div>
+
+    <div class="assign-preview" id="assignPreview">
+      <div class="assign-img-grid" id="assignImgGrid"></div>
+      <div class="assign-progress-label" id="assignProgressLabel"></div>
+    </div>
+
+    <div class="code-list-label">🏷️ Chọn mã cho nhóm này</div>
+    <div class="code-list" id="codeListEl"></div>
+
+    <div style="height:16px;"></div>
+    <div class="sheet-actions" style="padding-top:0;">
+      <button class="btn-main" id="assignConfirmBtn" onclick="confirmAssign()" disabled>✅ Xác nhận & nhóm tiếp theo</button>
+      <button class="btn-secondary" onclick="backToStep2()">← Quay lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- iOS Safari: input phải ở trong DOM bình thường, không display:none -->
+<input type="file" id="bulkFileInput" accept="image/*" multiple onchange="onBulkFilesChosen(this)" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;z-index:-1;">
+
+<div class="toast" id="toast"></div>
+<canvas id="canvas"></canvas>
+
+<script>
+// ===== STATE =====
+let products = JSON.parse(localStorage.getItem('products') || '[]');
+let googleToken = null;
+let clientId = localStorage.getItem('gClientId') || '';
+let targetFolderId = localStorage.getItem('gFolderId') || '';
+
+// Bulk import state
+let bulkGroups = [];       // [{files:[File,...], urls:[str,...]}, ...]
+let bulkCodes = [];        // all codes from textarea
+let remainingCodes = [];   // codes not yet assigned
+let assignedCodes = [];    // codes assigned to each group
+let currentAssignIdx = 0;
+let currentSelectedCode = null;
+
+// ===== INIT =====
+document.getElementById('clientIdInput').value = clientId;
+document.getElementById('folderIdInput').value = targetFolderId;
+updateFolderIdPreview();
+updateFolderName();
+renderProducts();
+updateExportTab();
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  document.getElementById('fab').style.display = name === 'home' ? 'flex' : 'none';
+  if (name === 'export') updateExportTab();
+}
+
+// ===== SHEETS =====
+function openBulkImport() {
+  // reset
+  bulkGroups = [];
+  bulkCodes = [];
+  remainingCodes = [];
+  assignedCodes = [];
+  currentAssignIdx = 0;
+  currentSelectedCode = null;
+  document.getElementById('codesTextarea').value = '';
+  document.getElementById('codesCount').textContent = '0 mã';
+  document.getElementById('codesMismatchWarn').style.display = 'none';
+  document.getElementById('importPickedInfo').style.display = 'none';
+  document.getElementById('toStep2Btn').disabled = true;
+  showImportStep(1);
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('importSheet').classList.add('active');
+}
+
+function closeAllSheets() {
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('importSheet').classList.remove('active');
+}
+
+function showImportStep(n) {
+  document.getElementById('importStep1').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('importStep2').style.display = n===2 ? 'block' : 'none';
+  document.getElementById('importStep3').style.display = n===3 ? 'block' : 'none';
+  // step dots
+  for (let i = 0; i < 3; i++) {
+    const dot = document.getElementById('sdot-' + i);
+    dot.className = 'step-dot';
+    if (i < n-1) dot.classList.add('done');
+    else if (i === n-1) dot.classList.add('active');
+  }
+}
+
+// ===== BULK FILE PICK =====
+function triggerBulkPick() {
+  // iOS Safari: .click() từ div/button onclick không trigger file picker đáng tin cậy
+  // Phải dùng label[for] wrap trực tiếp input
+  const input = document.getElementById('bulkFileInput');
+  input.value = '';
+  input.click();
+}
+
+function onBulkFilesChosen(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+
+  // Sort by filename a→z
+  files.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Group into sets of 4
+  bulkGroups = [];
+  for (let i = 0; i < files.length; i += 4) {
+    const grpFiles = files.slice(i, i + 4);
+    const grpUrls = grpFiles.map(f => URL.createObjectURL(f));
+    bulkGroups.push({ files: grpFiles, urls: grpUrls });
+  }
+
+  // Update UI
+  const banner = document.getElementById('importPickedBanner');
+  const remainder = files.length % 4;
+  let bannerText = `✅ ${files.length} ảnh → ${bulkGroups.length} nhóm`;
+  if (remainder > 0) bannerText += ` (nhóm cuối có ${remainder} ảnh)`;
+  banner.textContent = bannerText;
+  document.getElementById('importPickedInfo').style.display = 'block';
+
+  // Preview: show first image of each group in a small grid
+  const preview = document.getElementById('importGroupPreview');
+  preview.innerHTML = bulkGroups.map((g, i) => `
+    <div style="position:relative;">
+      <div style="aspect-ratio:1;background:var(--card2);border-radius:8px;overflow:hidden;">
+        <img src="${g.urls[0]}" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+      <div style="position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,0.75);color:white;font-size:8px;font-weight:800;padding:2px 5px;border-radius:4px;">
+        ${g.files.length}🖼
+      </div>
+      <div style="font-size:9px;color:var(--text2);text-align:center;margin-top:3px;font-weight:700;">
+        N${i+1}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('toStep2Btn').disabled = false;
+  input.value = '';
+}
+
+// ===== STEP 2: PASTE CODES =====
+function goToStep2() {
+  document.getElementById('step2Sub').textContent = `Cần ít nhất ${bulkGroups.length} mã cho ${bulkGroups.length} nhóm`;
+  showImportStep(2);
+}
+
+function backToStep1() {
+  showImportStep(1);
+}
+
+function onCodesInput() {
+  const raw = document.getElementById('codesTextarea').value;
+  bulkCodes = raw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+  document.getElementById('codesCount').textContent = bulkCodes.length + ' mã';
+
+  const warn = document.getElementById('codesMismatchWarn');
+  if (bulkCodes.length < bulkGroups.length) {
+    warn.style.display = 'block';
+    warn.textContent = `⚠️ Thiếu mã! Có ${bulkGroups.length} nhóm nhưng chỉ có ${bulkCodes.length} mã. Cần thêm ${bulkGroups.length - bulkCodes.length} mã.`;
+    document.getElementById('toStep3Btn').disabled = true;
+  } else {
+    warn.style.display = 'none';
+    document.getElementById('toStep3Btn').disabled = false;
+  }
+}
+
+// ===== STEP 3: ASSIGN CODES =====
+function goToStep3() {
+  remainingCodes = [...bulkCodes];
+  assignedCodes = new Array(bulkGroups.length).fill(null);
+  currentAssignIdx = 0;
+  currentSelectedCode = null;
+  showImportStep(3);
+  renderAssignStep();
+}
+
+function backToStep2() {
+  showImportStep(2);
+}
+
+function renderAssignStep() {
+  const group = bulkGroups[currentAssignIdx];
+  const total = bulkGroups.length;
+
+  document.getElementById('step3Title').textContent = `Gán mã cho nhóm ${currentAssignIdx + 1}`;
+  document.getElementById('step3Sub').textContent = `Nhóm ${currentAssignIdx + 1}/${total} · ${group.files.length} ảnh`;
+  document.getElementById('assignProgressLabel').textContent =
+    `Còn ${total - currentAssignIdx} nhóm chưa gán · ${remainingCodes.length} mã còn lại`;
+
+  // Render images
+  const grid = document.getElementById('assignImgGrid');
+  grid.innerHTML = group.urls.map((url, i) => `
+    <div class="assign-img-cell">
+      <img src="${url}">
+      <div class="img-num">${i+1}</div>
+    </div>
+  `).join('');
+
+  // Render code list
+  currentSelectedCode = null;
+  document.getElementById('assignConfirmBtn').disabled = true;
+  const list = document.getElementById('codeListEl');
+  list.innerHTML = remainingCodes.map((code, i) => `
+    <div class="code-list-item" id="codeItem-${i}" onclick="selectCode(${i}, '${escapeHtml(code)}')">
+      <div class="code-text">${escapeHtml(code)}</div>
+      <div class="code-check">✅</div>
+    </div>
+  `).join('');
+
+  // Scroll code list to top
+  list.scrollTop = 0;
+}
+
+function selectCode(idx, code) {
+  // deselect all
+  document.querySelectorAll('.code-list-item').forEach(el => el.classList.remove('selected'));
+  document.getElementById('codeItem-' + idx).classList.add('selected');
+  currentSelectedCode = { idx, code };
+  document.getElementById('assignConfirmBtn').disabled = false;
+}
+
+async function confirmAssign() {
+  if (!currentSelectedCode) return;
+
+  // Assign code to current group
+  assignedCodes[currentAssignIdx] = currentSelectedCode.code;
+  remainingCodes.splice(currentSelectedCode.idx, 1);
+
+  // Save product
+  const group = bulkGroups[currentAssignIdx];
+  const code = currentSelectedCode.code.toUpperCase();
+  const images = [];
+  for (const file of group.files) {
+    const b64 = await fileToBase64(file);
+    images.push(b64);
+  }
+  const product = {
+    id: Date.now() + currentAssignIdx,
+    code,
+    images,
+    date: new Date().toLocaleDateString('vi-VN'),
+  };
+  products.push(product);
+  saveToStorage();
+
+  currentAssignIdx++;
+
+  if (currentAssignIdx >= bulkGroups.length) {
+    // Done!
+    renderProducts();
+    updateExportTab();
+    closeAllSheets();
+    showToast(`✅ Đã lưu ${bulkGroups.length} sản phẩm!`);
+    return;
+  }
+
+  // Check if codes ran out
+  if (remainingCodes.length === 0 && currentAssignIdx < bulkGroups.length) {
+    // Show warning, go back to step2 to add more codes
+    renderProducts();
+    saveToStorage();
+    showImportStep(2);
+    const warn = document.getElementById('codesMismatchWarn');
+    warn.style.display = 'block';
+    warn.textContent = `⚠️ Hết mã! Đã gán ${currentAssignIdx} nhóm. Còn ${bulkGroups.length - currentAssignIdx} nhóm chưa có mã. Paste thêm mã vào đây.`;
+    document.getElementById('codesTextarea').value = '';
+    document.getElementById('codesCount').textContent = '0 mã';
+    document.getElementById('toStep3Btn').disabled = true;
+    // Update step2 sub
+    document.getElementById('step2Sub').textContent = `Cần thêm mã cho ${bulkGroups.length - currentAssignIdx} nhóm còn lại`;
+    showToast(`⚠️ Hết mã! Paste thêm mã để tiếp tục`);
+    return;
+  }
+
+  renderAssignStep();
+}
+
+// Override goToStep3 for continue flow (when codes ran out mid-way)
+function goToStep3() {
+  if (currentAssignIdx === 0) {
+    remainingCodes = [...bulkCodes];
+    assignedCodes = new Array(bulkGroups.length).fill(null);
+  } else {
+    // continuing: append new codes
+    const raw = document.getElementById('codesTextarea').value;
+    const newCodes = raw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+    remainingCodes = [...newCodes];
+  }
+  currentSelectedCode = null;
+  showImportStep(3);
+  renderAssignStep();
+}
+
+// ===== RENDER PRODUCTS =====
+function renderProducts() {
+  const list = document.getElementById('productList');
+  const empty = document.getElementById('emptyState');
+
+  if (products.length === 0) {
+    empty.style.display = 'flex';
+    list.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = products.map((p, i) => `
+    <div class="product-card">
+      <div class="product-card-header">
+        <div>
+          <div class="product-code-display">${escapeHtml(p.code)}</div>
+          <div class="product-meta">📅 ${p.date} · ${p.images.length} ảnh</div>
+        </div>
+        <div class="card-actions">
+          <button class="card-btn danger" onclick="deleteProduct(${i})">🗑</button>
+        </div>
+      </div>
+      <div class="img-grid">
+        ${p.images.map(img => `
+          <div class="img-cell">
+            <img src="${img}" loading="lazy">
+            <div class="code-overlay">${escapeHtml(p.code)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteProduct(i) {
+  products.splice(i, 1);
+  saveToStorage();
+  renderProducts();
+  updateExportTab();
+  showToast('🗑 Đã xoá sản phẩm');
+}
+
+function saveToStorage() {
+  try { localStorage.setItem('products', JSON.stringify(products)); } catch(e) {
+    showToast('⚠️ Bộ nhớ đầy, không thể lưu thêm');
+  }
+}
+
+// ===== EXPORT TAB =====
+function updateFolderName() {
+  const now = new Date();
+  const d = String(now.getDate()).padStart(2,'0');
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const y = now.getFullYear();
+  const name = `Anh_SanPham_${d}-${m}-${y}`;
+  const el = document.getElementById('folderNameDisplay');
+  if (el) el.textContent = name;
+  return name;
+}
+
+function updateExportTab() {
+  const summary = document.getElementById('exportSummary');
+  const btn = document.getElementById('exportBtn');
+  const total = products.reduce((sum, p) => sum + p.images.length, 0);
+  summary.textContent = `${products.length} sản phẩm · ${total} ảnh sẽ được ghép mã và upload`;
+  btn.disabled = !(products.length > 0 && googleToken);
+}
+
+// ===== FOLDER ID =====
+function saveFolderId() {
+  const raw = document.getElementById('folderIdInput').value.trim();
+  targetFolderId = parseFolderId(raw);
+  localStorage.setItem('gFolderId', targetFolderId);
+  updateFolderIdPreview();
+}
+
+function parseFolderId(input) {
+  // If it's a Drive link, extract the ID
+  // https://drive.google.com/drive/folders/FOLDER_ID
+  // https://drive.google.com/drive/u/0/folders/FOLDER_ID
+  const match = input.match(/folders\/([a-zA-Z0-9_-]+)/);
+  if (match) return match[1];
+  // Otherwise treat as raw ID
+  return input.trim();
+}
+
+function updateFolderIdPreview() {
+  const raw = document.getElementById('folderIdInput').value.trim();
+  const parsed = parseFolderId(raw);
+  const el = document.getElementById('folderIdPreview');
+  if (!parsed) {
+    el.textContent = '';
+    return;
+  }
+  if (raw !== parsed) {
+    el.textContent = `✅ Đã nhận folder ID: ${parsed}`;
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = `📂 Folder ID: ${parsed}`;
+    el.style.color = 'var(--text2)';
+  }
+  targetFolderId = parsed;
+}
+
+// ===== GOOGLE LOGIN =====
+function saveClientId() {
+  clientId = document.getElementById('clientIdInput').value.trim();
+  localStorage.setItem('gClientId', clientId);
+}
+
+function loginGoogle() {
+  if (!clientId) {
+    showToast('⚠️ Vào tab Cài đặt để nhập Client ID trước');
+    switchTab('setup');
+    return;
+  }
+  const redirectUri = window.location.href.split('?')[0].split('#')[0];
+  const scope = 'https://www.googleapis.com/auth/drive.file';
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=consent`;
+  window.location.href = url;
+}
+
+function testDriveLogin() {
+  saveClientId();
+  saveFolderId();
+  loginGoogle();
+}
+
+// Handle OAuth redirect
+(function checkToken() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.substring(1));
+    googleToken = params.get('access_token');
+    history.replaceState(null, '', window.location.pathname);
+    document.getElementById('driveStatusName').textContent = 'Google Drive đã kết nối';
+    document.getElementById('driveStatusSub').innerHTML = '<span class="dot"></span>Sẵn sàng upload';
+    document.getElementById('driveLoginBtn').textContent = '✓ Đã đăng nhập';
+    document.getElementById('driveLoginBtn').style.color = 'var(--green)';
+    document.getElementById('driveLoginBtn').style.borderColor = 'var(--green)';
+    showToast('✅ Đăng nhập Google thành công!');
+    updateExportTab();
+  }
+})();
+
+// ===== EXPORT & UPLOAD =====
+async function startExport() {
+  if (!googleToken) { showToast('⚠️ Chưa đăng nhập Google Drive'); return; }
+  if (products.length === 0) { showToast('⚠️ Chưa có sản phẩm nào'); return; }
+
+  const progressCard = document.getElementById('progressCard');
+  const progressFill = document.getElementById('progressFill');
+  const progressLog  = document.getElementById('progressLog');
+  const exportBtn    = document.getElementById('exportBtn');
+  const doneCard     = document.getElementById('doneCard');
+
+  progressCard.style.display = 'block';
+  doneCard.style.display = 'none';
+  exportBtn.disabled = true;
+  progressLog.innerHTML = '';
+
+  const subFolderName = updateFolderName();
+
+  // 1. Create subfolder inside target folder (or root if no target)
+  addLog(progressLog, '📁 Đang tạo thư mục con trên Drive...');
+  let subFolderId;
+  try {
+    subFolderId = await createDriveFolder(subFolderName, targetFolderId || null);
+    addLog(progressLog, `<span class="ok">✅ Thư mục: ${subFolderName}</span>`);
+    if (targetFolderId) addLog(progressLog, `<span class="ok">📂 Bên trong folder ID: ${targetFolderId}</span>`);
+  } catch(e) {
+    addLog(progressLog, `<span class="err">❌ Lỗi tạo thư mục: ${e.message}</span>`);
+    exportBtn.disabled = false;
+    return;
+  }
+
+  // 2. Process each product
+  const total = products.reduce((sum, p) => sum + p.images.length, 0);
+  let done = 0;
+
+  for (const product of products) {
+    for (let i = 0; i < product.images.length; i++) {
+      try {
+        const blob = await drawCodeOnImage(product.images[i], product.code);
+        const filename = `${product.code}_${i+1}.jpg`;
+        await uploadToDrive(blob, filename, subFolderId);
+        addLog(progressLog, `<span class="ok">✅ ${filename}</span>`);
+      } catch(e) {
+        addLog(progressLog, `<span class="err">❌ ${product.code}_${i+1}: ${e.message}</span>`);
+      }
+      done++;
+      progressFill.style.width = Math.round(done/total*100) + '%';
+      await sleep(30);
+    }
+  }
+
+  addLog(progressLog, `🎉 Xong! ${done}/${total} ảnh đã upload.`);
+  doneCard.style.display = 'block';
+  exportBtn.disabled = false;
+  showToast('🎉 Upload Drive thành công!');
+}
+
+async function drawCodeOnImage(base64, code) {
+  return new Promise(resolve => {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width  = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const fontSize = Math.max(20, Math.round(img.width * 0.045));
+      ctx.font = `bold ${fontSize}px Arial`;
+      const tw = ctx.measureText(code).width;
+      const pad = 16;
+      const x = img.width  - tw - pad;
+      const y = img.height - pad;
+
+      // Dark opaque background
+      ctx.fillStyle = 'rgba(0,0,0,0.85)';
+      ctx.beginPath();
+      ctx.roundRect(x-10, y-fontSize-4, tw+20, fontSize+16, 6);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+      ctx.lineWidth = 3;
+      ctx.strokeText(code, x, y);
+      ctx.fillStyle = 'white';
+      ctx.fillText(code, x, y);
+
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.92);
+    };
+    img.src = base64;
+  });
+}
+
+async function createDriveFolder(name, parentId) {
+  const meta = { name, mimeType: 'application/vnd.google-apps.folder' };
+  if (parentId) meta.parents = [parentId];
+
+  const res = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + googleToken,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(meta)
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  return data.id;
+}
+
+async function uploadToDrive(blob, filename, folderId) {
+  const meta = { name: filename, parents: [folderId] };
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
+  form.append('file', blob);
+
+  const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + googleToken },
+    body: form,
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+}
+
+// ===== UTILS =====
+function fileToBase64(file) {
+  return new Promise(resolve => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.readAsDataURL(file);
+  });
+}
+
+function addLog(box, html) {
+  box.innerHTML += html + '<br>';
+  box.scrollTop = box.scrollHeight;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
