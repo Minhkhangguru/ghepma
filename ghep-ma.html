@@ -540,7 +540,7 @@ input[type="file"] { display: none; }
 }
 .popup-btn-no:active { opacity: 0.8; }
 
-/* ===== REORDER SHEET (NEW) ===== */
+/* ===== REORDER SHEET ===== */
 .reorder-info-bar {
   margin: 0 20px 12px;
   background: rgba(76,201,240,0.1);
@@ -552,186 +552,99 @@ input[type="file"] { display: none; }
   font-weight: 700;
   line-height: 1.6;
 }
-
-/* Flat grid of all images */
 .flat-grid-wrap {
   padding: 0 20px;
   max-height: 60vh;
   overflow-y: auto;
+  /* disable page scroll while dragging */
+  touch-action: pan-y;
 }
-.flat-group {
-  margin-bottom: 16px;
-}
+.flat-group { margin-bottom: 16px; }
 .flat-group-label {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 11px; font-weight: 800;
   color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
+  text-transform: uppercase; letter-spacing: 0.07em;
   margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: flex; align-items: center; gap: 6px;
 }
-.flat-group-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
+.flat-group-label::after { content:''; flex:1; height:1px; background:var(--border); }
 .flat-img-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 5px;
 }
+
+/* ---- individual cell ---- */
 .flat-img-cell {
   aspect-ratio: 1;
   background: var(--card2);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
-  cursor: pointer;
+  cursor: grab;
   border: 2.5px solid transparent;
-  transition: border-color 0.15s, transform 0.15s;
+  transition: border-color 0.12s, transform 0.12s, opacity 0.12s;
   -webkit-tap-highlight-color: transparent;
-}
-.flat-img-cell:active { transform: scale(0.94); }
-.flat-img-cell.selected-src {
-  border-color: var(--accent2);
-  box-shadow: 0 0 0 3px rgba(255,107,157,0.3);
+  user-select: none;
+  -webkit-user-select: none;
 }
 .flat-img-cell img {
   width: 100%; height: 100%;
   object-fit: cover; display: block;
+  pointer-events: none;
 }
 .flat-img-cell .cell-num {
-  position: absolute;
-  top: 3px; left: 3px;
-  background: rgba(0,0,0,0.72);
-  color: white;
+  position: absolute; top: 3px; left: 3px;
+  background: rgba(0,0,0,0.72); color: white;
   font-size: 9px; font-weight: 900;
-  min-width: 18px; height: 18px;
-  padding: 0 4px;
+  min-width: 18px; height: 18px; padding: 0 4px;
   border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
-}
-.flat-img-cell.selected-src .cell-num {
-  background: var(--accent);
-}
-.flat-img-cell .cell-select-ring {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,107,157,0.18);
-  opacity: 0;
-  transition: opacity 0.15s;
-  font-size: 22px;
-}
-.flat-img-cell.selected-src .cell-select-ring { opacity: 1; }
-
-/* Animated shimmer on selected */
-@keyframes pulse-border {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(255,107,157,0.3); }
-  50% { box-shadow: 0 0 0 5px rgba(255,107,157,0.55); }
-}
-.flat-img-cell.selected-src {
-  animation: pulse-border 1.4s ease-in-out infinite;
+  pointer-events: none;
 }
 
-/* ===== MOVE INPUT POPUP ===== */
-.move-input-popup {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.78);
-  z-index: 600;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(6px);
-  padding: 20px;
+/* dragging source */
+.flat-img-cell.dragging {
+  opacity: 0.35;
+  transform: scale(0.93);
+  border-color: var(--accent2);
+  cursor: grabbing;
 }
-.move-input-popup.active { display: flex; }
-.move-input-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px 20px 20px;
-  width: 100%; max-width: 300px;
-  animation: popIn 0.2s ease;
-}
-.move-input-preview {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-  background: var(--card2);
-  border-radius: 12px;
-  padding: 10px 12px;
-}
-.move-input-preview img {
-  width: 52px; height: 52px;
-  border-radius: 9px;
-  object-fit: cover;
-  border: 2px solid var(--accent2);
-}
-.move-input-preview-info { flex: 1; }
-.move-input-preview-label { font-size: 11px; color: var(--text2); font-weight: 700; }
-.move-input-preview-pos {
-  font-size: 16px; font-weight: 900;
-  color: var(--accent2);
-  margin-top: 2px;
-}
-.move-input-title { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
-.move-input-hint { font-size: 12px; color: var(--text2); margin-bottom: 14px; line-height: 1.6; }
-.move-num-input {
-  width: 100%;
-  background: var(--card2);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 16px;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 28px; font-weight: 900;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.2s;
-  -webkit-appearance: none;
-}
-.move-num-input:focus { border-color: var(--accent2); }
-.move-num-input.valid { border-color: var(--green); }
-.move-num-input.invalid { border-color: var(--accent); }
-.move-input-range { font-size: 12px; color: var(--text2); text-align: center; margin-top: 8px; margin-bottom: 18px; }
-.move-input-actions { display: flex; gap: 10px; }
-.move-btn-confirm {
-  flex: 1; padding: 14px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: white; border: none;
-  border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 15px; font-weight: 800;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-.move-btn-confirm:disabled { opacity: 0.3; }
-.move-btn-confirm:active { opacity: 0.75; }
-.move-btn-cancel {
-  flex: 1; padding: 14px;
-  background: var(--card2);
-  color: var(--text2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 15px; font-weight: 700;
-  cursor: pointer;
-}
-.move-btn-cancel:active { opacity: 0.75; }
 
-/* Domino animation flash */
+/* drop target highlight */
+.flat-img-cell.drop-target {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(6,214,160,0.35);
+  transform: scale(1.06);
+}
+
+/* just-moved flash */
 @keyframes flash-green {
-  0% { background: rgba(6,214,160,0.35); }
+  0%   { background: rgba(6,214,160,0.4); }
   100% { background: transparent; }
 }
-.flat-img-cell.just-moved {
-  animation: flash-green 0.6s ease forwards;
+.flat-img-cell.just-moved { animation: flash-green 0.55s ease forwards; }
+
+/* floating drag ghost */
+#dragGhost {
+  position: fixed;
+  width: 72px; height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 999;
+  border: 2.5px solid var(--accent2);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+  transform: translate(-50%, -50%) scale(1.12);
+  transition: transform 0.08s;
+  display: none;
+}
+#dragGhost img { width:100%; height:100%; object-fit:cover; display:block; }
+#dragGhost .ghost-num {
+  position: absolute; bottom: 4px; right: 4px;
+  background: var(--accent); color: white;
+  font-size: 9px; font-weight: 900;
+  padding: 2px 5px; border-radius: 5px;
 }
 </style>
 </head>
@@ -937,7 +850,7 @@ input[type="file"] { display: none; }
 <div class="sheet" id="reorderSheet" style="z-index:210;">
   <div class="sheet-handle"></div>
   <div class="sheet-title">🔀 Sắp xếp lại thứ tự ảnh</div>
-  <div class="sheet-sub">Nhấn vào ảnh để chọn → nhập vị trí muốn chuyển đến</div>
+  <div class="sheet-sub">Giữ và kéo ảnh đến vị trí mới · Nhóm tự cập nhật theo domino</div>
   <div style="height:10px;"></div>
   <div class="reorder-info-bar" id="reorderInfoBar">
     Tổng <strong id="reorderTotalCount">0</strong> ảnh · <strong id="reorderGroupCount">0</strong> nhóm (mỗi nhóm tối đa 4 ảnh)
@@ -948,35 +861,9 @@ input[type="file"] { display: none; }
   </div>
 </div>
 
-<!-- ===== MOVE INPUT POPUP ===== -->
-<div class="move-input-popup" id="moveInputPopup">
-  <div class="move-input-box">
-    <div class="move-input-preview">
-      <img id="moveInputThumb" src="">
-      <div class="move-input-preview-info">
-        <div class="move-input-preview-label">Ảnh đang chọn</div>
-        <div class="move-input-preview-pos" id="moveInputCurPos">Vị trí 1</div>
-      </div>
-    </div>
-    <div class="move-input-title">Chuyển đến vị trí số</div>
-    <div class="move-input-hint" id="moveInputHint">Nhập vị trí từ 1 đến <strong id="moveInputMax">1</strong>. Các ảnh giữa sẽ tự dịch chuyển.</div>
-    <input
-      type="number"
-      class="move-num-input"
-      id="moveNumInput"
-      inputmode="numeric"
-      pattern="[0-9]*"
-      min="1"
-      placeholder="—"
-      oninput="onMoveNumInput()"
-    >
-    <div class="move-input-range" id="moveInputRange"></div>
-    <div class="move-input-actions">
-      <button class="move-btn-confirm" id="moveConfirmBtn" onclick="confirmMove()" disabled>Chuyển ✓</button>
-      <button class="move-btn-cancel" onclick="closeMoveInputPopup()">Huỷ</button>
-    </div>
-  </div>
-</div>
+
+<!-- DRAG GHOST -->
+<div id="dragGhost"><img id="dragGhostImg" src=""><div class="ghost-num" id="dragGhostNum"></div></div>
 
 <!-- DELETE ALL POPUP -->
 <div class="popup-overlay" id="deleteAllPopup">
@@ -1174,195 +1061,215 @@ function closeReorderSheet() {
   renderGroupPreview(); // refresh step-1 preview
 }
 
-/**
- * Render flat grid. Cell IDs are POSITIONAL (fcell-0 .. fcell-N-1) and never change.
- * onclick reads data-idx at call time — no stale closures.
- */
-function renderFlatGrid() {
-  const total = flatList.length;
-  const numGroups = Math.ceil(total / 4);
+// ===== REORDER SHEET — DRAG & DROP =====
 
+let dragSrcPos   = null;   // position index being dragged
+let dragOverPos  = null;   // position index currently hovered
+
+function openReorderSheet() {
+  dragSrcPos = null; dragOverPos = null;
+  renderFlatGrid();
+  document.getElementById('reorderSheet').classList.add('active');
+}
+
+function closeReorderSheet() {
+  document.getElementById('reorderSheet').classList.remove('active');
+  renderGroupPreview();
+}
+
+/* ---- render (full build, called once on open) ---- */
+function renderFlatGrid() {
+  const total     = flatList.length;
+  const numGroups = Math.ceil(total / 4);
   document.getElementById('reorderTotalCount').textContent = total;
   document.getElementById('reorderGroupCount').textContent = numGroups;
 
-  const wrap = document.getElementById('flatGridWrap');
   let html = '';
-
   for (let g = 0; g < numGroups; g++) {
-    html += `<div class="flat-group">`;
-    html += `<div class="flat-group-label">Nhóm ${g+1}</div>`;
-    html += `<div class="flat-img-row">`;
-
+    html += `<div class="flat-group">` +
+            `<div class="flat-group-label">Nhóm ${g+1}</div>` +
+            `<div class="flat-img-row">`;
     for (let slot = 0; slot < 4; slot++) {
-      const pos = g * 4 + slot; // positional index = DOM id
+      const pos = g * 4 + slot;
       if (pos >= total) {
         html += `<div class="flat-img-cell" style="border:2px dashed var(--border);cursor:default;"></div>`;
         continue;
       }
-      const item = flatList[pos];
-      const isSel = reorderSrcIdx === pos;
-      html += `<div class="flat-img-cell${isSel ? ' selected-src' : ''}" id="fcell-${pos}" data-pos="${pos}" onclick="onCellTap(this)">` +
-              `<img src="${item.url}">` +
+      html += `<div class="flat-img-cell" id="fcell-${pos}" data-pos="${pos}">` +
+              `<img src="${flatList[pos].url}" draggable="false">` +
               `<div class="cell-num">${pos + 1}</div>` +
-              `<div class="cell-select-ring">✦</div>` +
               `</div>`;
     }
     html += `</div></div>`;
   }
-
+  const wrap = document.getElementById('flatGridWrap');
   wrap.innerHTML = html;
-  wrap._renderedTotal = total;
+  wrap._total = total;
+
+  // Attach touch handlers after render
+  attachDragHandlers();
 }
 
-/**
- * Patch cells in-place after a move.
- * Only updates img.src, label text, selected class — does NOT touch onclick.
- * onclick always reads data-pos from the element itself at tap time → never stale.
- */
+/* ---- patch in-place (after each move — no DOM recreation) ---- */
 function patchFlatGrid() {
   const total = flatList.length;
-  const wrap = document.getElementById('flatGridWrap');
-
-  if (wrap._renderedTotal !== total) {
-    // count changed — full rebuild needed
-    renderFlatGrid();
-    return;
-  }
+  const wrap  = document.getElementById('flatGridWrap');
+  if (wrap._total !== total) { renderFlatGrid(); return; }
 
   document.getElementById('reorderTotalCount').textContent = total;
-  document.getElementById('reorderGroupCount').textContent = Math.ceil(total / 4);
 
   for (let pos = 0; pos < total; pos++) {
     const cell = document.getElementById('fcell-' + pos);
     if (!cell) continue;
-
     const item = flatList[pos];
 
-    // swap image only if url changed
     const img = cell.querySelector('img');
     if (img && img.getAttribute('src') !== item.url) img.setAttribute('src', item.url);
 
-    // update number
     const numEl = cell.querySelector('.cell-num');
     if (numEl) numEl.textContent = pos + 1;
 
-    // selected highlight
-    if (reorderSrcIdx === pos) cell.classList.add('selected-src');
-    else cell.classList.remove('selected-src');
+    cell.classList.remove('dragging', 'drop-target', 'just-moved');
   }
 }
 
-/** Handler attached in HTML via onclick="onCellTap(this)" — reads live data-pos */
-function onCellTap(el) {
-  const pos = parseInt(el.dataset.pos);
-  if (isNaN(pos)) return;
+/* ================================================================
+   TOUCH DRAG & DROP
+   Strategy:
+   - touchstart  → record src pos, show ghost
+   - touchmove   → move ghost, highlight target cell under finger
+   - touchend    → splice flatList (domino), patch grid, flash dest
+   ================================================================ */
 
-  if (reorderSrcIdx === pos) {
-    // tap same cell again = deselect
-    reorderSrcIdx = null;
+const ghost    = document.getElementById('dragGhost');
+const ghostImg = document.getElementById('dragGhostImg');
+const ghostNum = document.getElementById('dragGhostNum');
+
+let _touchScrollBlocked = false;
+
+function attachDragHandlers() {
+  const wrap = document.getElementById('flatGridWrap');
+  wrap.addEventListener('touchstart',  onTouchStart,  { passive: false });
+  wrap.addEventListener('touchmove',   onTouchMove,   { passive: false });
+  wrap.addEventListener('touchend',    onTouchEnd,    { passive: true  });
+  wrap.addEventListener('touchcancel', onTouchCancel, { passive: true  });
+}
+
+function cellFromPoint(x, y) {
+  // elementFromPoint works even when the ghost covers the finger point
+  const el = document.elementFromPoint(x, y);
+  if (!el) return null;
+  const cell = el.closest('.flat-img-cell[data-pos]');
+  return cell;
+}
+
+function onTouchStart(e) {
+  const touch = e.touches[0];
+  const cell  = cellFromPoint(touch.clientX, touch.clientY);
+  if (!cell || cell.dataset.pos === undefined) return;
+
+  dragSrcPos = parseInt(cell.dataset.pos);
+  dragOverPos = null;
+
+  // Show ghost
+  const item = flatList[dragSrcPos];
+  ghostImg.src        = item.url;
+  ghostNum.textContent = dragSrcPos + 1;
+  ghost.style.left    = touch.clientX + 'px';
+  ghost.style.top     = touch.clientY + 'px';
+  ghost.style.display = 'block';
+
+  cell.classList.add('dragging');
+  _touchScrollBlocked = true;
+  e.preventDefault(); // prevent scroll while dragging
+}
+
+function onTouchMove(e) {
+  if (dragSrcPos === null) return;
+  e.preventDefault();
+
+  const touch = e.touches[0];
+  ghost.style.left = touch.clientX + 'px';
+  ghost.style.top  = touch.clientY + 'px';
+
+  // Find cell under finger (hide ghost temporarily to hit-test underneath)
+  ghost.style.display = 'none';
+  const cell = cellFromPoint(touch.clientX, touch.clientY);
+  ghost.style.display = 'block';
+
+  // Clear previous drop-target highlight
+  if (dragOverPos !== null) {
+    const prev = document.getElementById('fcell-' + dragOverPos);
+    if (prev) prev.classList.remove('drop-target');
+  }
+
+  if (cell && cell.dataset.pos !== undefined) {
+    const pos = parseInt(cell.dataset.pos);
+    if (pos !== dragSrcPos) {
+      dragOverPos = pos;
+      cell.classList.add('drop-target');
+    } else {
+      dragOverPos = null;
+    }
+  } else {
+    dragOverPos = null;
+  }
+}
+
+function onTouchEnd(e) {
+  if (dragSrcPos === null) { resetDragState(); return; }
+
+  ghost.style.display = 'none';
+
+  const srcPos  = dragSrcPos;
+  const destPos = dragOverPos;
+
+  resetDragState();
+
+  if (destPos === null || destPos === srcPos) {
+    // Dropped on same cell or outside — cancel
     patchFlatGrid();
     return;
   }
 
-  reorderSrcIdx = pos;
-  patchFlatGrid();
-  openMoveInputPopup(pos);
-}
-
-// kept for any legacy call
-function selectFlatImg(pos) { onCellTap(document.getElementById('fcell-' + pos)); }
-
-// ===== MOVE INPUT POPUP =====
-
-function openMoveInputPopup(srcIdx) {
-  const total = flatList.length;
-  const item = flatList[srcIdx];
-
-  document.getElementById('moveInputThumb').src = item.url;
-  document.getElementById('moveInputCurPos').textContent = `Vị trí ${srcIdx + 1}  →  Nhóm ${Math.floor(srcIdx/4)+1}, ảnh ${(srcIdx%4)+1}`;
-  document.getElementById('moveInputMax').textContent = total;
-  document.getElementById('moveInputHint').innerHTML = `Nhập vị trí từ <strong>1</strong> đến <strong>${total}</strong>. Các ảnh giữa sẽ tự dịch chuyển.`;
-  document.getElementById('moveInputRange').textContent = `Hiện tại: vị trí ${srcIdx + 1}`;
-
-  const input = document.getElementById('moveNumInput');
-  input.value = '';
-  input.max = total;
-  input.min = 1;
-  input.className = 'move-num-input';
-  document.getElementById('moveConfirmBtn').disabled = true;
-
-  document.getElementById('moveInputPopup').classList.add('active');
-
-  setTimeout(() => input.focus(), 100);
-}
-
-function closeMoveInputPopup() {
-  document.getElementById('moveInputPopup').classList.remove('active');
-  reorderSrcIdx = null;
-  patchFlatGrid();
-}
-
-function onMoveNumInput() {
-  const input = document.getElementById('moveNumInput');
-  const val = parseInt(input.value);
-  const total = flatList.length;
-  const btn = document.getElementById('moveConfirmBtn');
-  const range = document.getElementById('moveInputRange');
-
-  if (isNaN(val) || val < 1 || val > total) {
-    input.className = 'move-num-input' + (input.value.length > 0 ? ' invalid' : '');
-    btn.disabled = true;
-    range.textContent = input.value.length > 0 ? `❌ Phải từ 1 đến ${total}` : '';
-    return;
-  }
-
-  if (reorderSrcIdx !== null && val === reorderSrcIdx + 1) {
-    input.className = 'move-num-input';
-    btn.disabled = true;
-    range.textContent = `Đây đã là vị trí hiện tại`;
-    return;
-  }
-
-  input.className = 'move-num-input valid';
-  btn.disabled = false;
-
-  const destGroup = Math.floor((val - 1) / 4) + 1;
-  const destSlot  = ((val - 1) % 4) + 1;
-  range.textContent = `→ Nhóm ${destGroup}, ảnh thứ ${destSlot}`;
-}
-
-function confirmMove() {
-  const input = document.getElementById('moveNumInput');
-  const destPos = parseInt(input.value); // 1-based
-  if (isNaN(destPos) || reorderSrcIdx === null) return;
-
-  const srcIdx  = reorderSrcIdx;
-  const destIdx = destPos - 1; // 0-based
-
-  // Splice out from src, insert at dest (domino effect)
-  const [item] = flatList.splice(srcIdx, 1);
-  flatList.splice(destIdx, 0, item);
+  // ---- Domino splice ----
+  const [item] = flatList.splice(srcPos, 1);
+  flatList.splice(destPos, 0, item);
   syncFlatToGroups();
 
-  // Close popup, clear selection
-  document.getElementById('moveInputPopup').classList.remove('active');
-  reorderSrcIdx = null;
-
-  // Patch DOM in-place — no full rebuild, no image re-decode, no lag
   patchFlatGrid();
 
-  // Flash the destination cell
-  const el = document.getElementById('fcell-' + destIdx);
-  if (el) {
-    el.classList.add('just-moved');
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(() => el.classList.remove('just-moved'), 700);
+  // Flash destination
+  const destCell = document.getElementById('fcell-' + destPos);
+  if (destCell) {
+    destCell.classList.add('just-moved');
+    destCell.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => destCell.classList.remove('just-moved'), 600);
   }
 
-  showToast(`✅ ${srcIdx+1} → ${destPos} · Nhấn ảnh để tiếp tục`);
+  showToast(`✅ ${srcPos + 1} → ${destPos + 1}`);
+}
+
+function onTouchCancel() { resetDragState(); patchFlatGrid(); }
+
+function resetDragState() {
+  ghost.style.display = 'none';
+  _touchScrollBlocked = false;
+
+  if (dragSrcPos !== null) {
+    const cell = document.getElementById('fcell-' + dragSrcPos);
+    if (cell) cell.classList.remove('dragging');
+  }
+  if (dragOverPos !== null) {
+    const cell = document.getElementById('fcell-' + dragOverPos);
+    if (cell) cell.classList.remove('drop-target');
+  }
+  dragSrcPos  = null;
+  dragOverPos = null;
 }
 
 // ===== STEP 2 =====
+
 function goToStep2() {
   document.getElementById('step2Sub').textContent = `Cần ít nhất ${bulkGroups.length} mã cho ${bulkGroups.length} nhóm`;
   showImportStep(2);
