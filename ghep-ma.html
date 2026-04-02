@@ -1118,7 +1118,7 @@ async function onBulkFilesChosen(input) {
   renderGroupPreview();
 
   const remainder = flatList.length % 4;
-  let bannerText = `✅ ${flatList.length} ảnh → ${bulkGroups.length} nhóm (đã sắp xếp theo ngày chụp)`;
+  let bannerText = `✅ ${flatList.length} ảnh → ${bulkGroups.length} nhóm (đã sort theo ngày chụp)`;
   if (remainder > 0) bannerText += ` · nhóm cuối có ${remainder} ảnh`;
   document.getElementById('importPickedBanner').textContent = bannerText;
   document.getElementById('importPickedInfo').style.display = 'block';
@@ -1175,8 +1175,8 @@ function closeReorderSheet() {
 }
 
 /**
- * Full rebuild of flat grid — only called on first open or when count changes.
- * Uses data-idx attributes so patchFlatGrid can update in-place.
+ * Render flat grid. Cell IDs are POSITIONAL (fcell-0 .. fcell-N-1) and never change.
+ * onclick reads data-idx at call time — no stale closures.
  */
 function renderFlatGrid() {
   const total = flatList.length;
@@ -1189,24 +1189,23 @@ function renderFlatGrid() {
   let html = '';
 
   for (let g = 0; g < numGroups; g++) {
-    html += `<div class="flat-group" id="fgroup-${g}">`;
-    html += `<div class="flat-group-label" id="fglabel-${g}">Nhóm ${g+1}</div>`;
-    html += `<div class="flat-img-row" id="frow-${g}">`;
+    html += `<div class="flat-group">`;
+    html += `<div class="flat-group-label">Nhóm ${g+1}</div>`;
+    html += `<div class="flat-img-row">`;
 
     for (let slot = 0; slot < 4; slot++) {
-      const flatIdx = g * 4 + slot;
-      if (flatIdx >= total) {
-        html += `<div class="flat-img-cell fslot-empty" style="border:2px dashed var(--border);cursor:default;" data-slot="${g*4+slot}"></div>`;
+      const pos = g * 4 + slot; // positional index = DOM id
+      if (pos >= total) {
+        html += `<div class="flat-img-cell" style="border:2px dashed var(--border);cursor:default;"></div>`;
         continue;
       }
-      const item = flatList[flatIdx];
-      const isSel = reorderSrcIdx === flatIdx;
-      html += `
-        <div class="flat-img-cell${isSel?' selected-src':''}" id="fcell-${flatIdx}" data-idx="${flatIdx}" onclick="selectFlatImg(${flatIdx})">
-          <img src="${item.url}">
-          <div class="cell-num">${flatIdx + 1}</div>
-          <div class="cell-select-ring">✦</div>
-        </div>`;
+      const item = flatList[pos];
+      const isSel = reorderSrcIdx === pos;
+      html += `<div class="flat-img-cell${isSel ? ' selected-src' : ''}" id="fcell-${pos}" data-pos="${pos}" onclick="onCellTap(this)">` +
+              `<img src="${item.url}">` +
+              `<div class="cell-num">${pos + 1}</div>` +
+              `<div class="cell-select-ring">✦</div>` +
+              `</div>`;
     }
     html += `</div></div>`;
   }
@@ -1216,61 +1215,62 @@ function renderFlatGrid() {
 }
 
 /**
- * Patch existing DOM cells in-place: update src, number, onclick, selected state.
- * Does NOT recreate elements → no image re-decode → no lag.
- * Falls back to full rebuild only if the number of cells changed.
+ * Patch cells in-place after a move.
+ * Only updates img.src, label text, selected class — does NOT touch onclick.
+ * onclick always reads data-pos from the element itself at tap time → never stale.
  */
 function patchFlatGrid() {
   const total = flatList.length;
   const wrap = document.getElementById('flatGridWrap');
 
-  // If total changed (e.g. future feature), do full rebuild
   if (wrap._renderedTotal !== total) {
+    // count changed — full rebuild needed
     renderFlatGrid();
     return;
   }
 
-  const numGroups = Math.ceil(total / 4);
   document.getElementById('reorderTotalCount').textContent = total;
-  document.getElementById('reorderGroupCount').textContent = numGroups;
+  document.getElementById('reorderGroupCount').textContent = Math.ceil(total / 4);
 
-  for (let flatIdx = 0; flatIdx < total; flatIdx++) {
-    const cell = document.getElementById('fcell-' + flatIdx);
+  for (let pos = 0; pos < total; pos++) {
+    const cell = document.getElementById('fcell-' + pos);
     if (!cell) continue;
 
-    const item = flatList[flatIdx];
-    const isSel = reorderSrcIdx === flatIdx;
+    const item = flatList[pos];
 
-    // Update image src only if changed (avoids re-decode if same url)
+    // swap image only if url changed
     const img = cell.querySelector('img');
-    if (img && img.src !== item.url) img.src = item.url;
+    if (img && img.getAttribute('src') !== item.url) img.setAttribute('src', item.url);
 
-    // Update number label
+    // update number
     const numEl = cell.querySelector('.cell-num');
-    if (numEl) numEl.textContent = flatIdx + 1;
+    if (numEl) numEl.textContent = pos + 1;
 
-    // Update onclick
-    cell.onclick = () => selectFlatImg(flatIdx);
-    cell.dataset.idx = flatIdx;
-
-    // Update selected state
-    if (isSel) cell.classList.add('selected-src');
+    // selected highlight
+    if (reorderSrcIdx === pos) cell.classList.add('selected-src');
     else cell.classList.remove('selected-src');
   }
 }
 
-function selectFlatImg(flatIdx) {
-  if (reorderSrcIdx === flatIdx) {
-    // tap again = deselect
+/** Handler attached in HTML via onclick="onCellTap(this)" — reads live data-pos */
+function onCellTap(el) {
+  const pos = parseInt(el.dataset.pos);
+  if (isNaN(pos)) return;
+
+  if (reorderSrcIdx === pos) {
+    // tap same cell again = deselect
     reorderSrcIdx = null;
     patchFlatGrid();
     return;
   }
-  reorderSrcIdx = flatIdx;
-  patchFlatGrid();
 
-  openMoveInputPopup(flatIdx);
+  reorderSrcIdx = pos;
+  patchFlatGrid();
+  openMoveInputPopup(pos);
 }
+
+// kept for any legacy call
+function selectFlatImg(pos) { onCellTap(document.getElementById('fcell-' + pos)); }
 
 // ===== MOVE INPUT POPUP =====
 
