@@ -540,97 +540,198 @@ input[type="file"] { display: none; }
 }
 .popup-btn-no:active { opacity: 0.8; }
 
-/* ===== REORDER SHEET ===== */
-.reorder-group-list {
+/* ===== REORDER SHEET (NEW) ===== */
+.reorder-info-bar {
+  margin: 0 20px 12px;
+  background: rgba(76,201,240,0.1);
+  border: 1px solid rgba(76,201,240,0.25);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--blue);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* Flat grid of all images */
+.flat-grid-wrap {
   padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
   max-height: 60vh;
   overflow-y: auto;
 }
-.reorder-group {
-  background: var(--card2);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  padding: 10px;
+.flat-group {
+  margin-bottom: 16px;
 }
-.reorder-group-title { font-size: 12px; font-weight: 800; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-.reorder-img-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-.reorder-img-cell {
+.flat-group-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.flat-group-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.flat-img-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+.flat-img-cell {
   aspect-ratio: 1;
-  background: var(--card);
-  border-radius: 8px;
+  background: var(--card2);
+  border-radius: 10px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color 0.15s;
+  border: 2.5px solid transparent;
+  transition: border-color 0.15s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
-.reorder-img-cell.selected-img { border-color: var(--accent2); }
-.reorder-img-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.reorder-img-cell .img-pos {
+.flat-img-cell:active { transform: scale(0.94); }
+.flat-img-cell.selected-src {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(255,107,157,0.3);
+}
+.flat-img-cell img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.flat-img-cell .cell-num {
   position: absolute;
   top: 3px; left: 3px;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.72);
   color: white;
-  font-size: 8px; font-weight: 800;
-  width: 16px; height: 16px;
-  border-radius: 5px;
+  font-size: 9px; font-weight: 900;
+  min-width: 18px; height: 18px;
+  padding: 0 4px;
+  border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
 }
-.reorder-img-cell.empty-slot { border: 2px dashed var(--border); cursor: default; }
-
-/* ===== MOVE-TO POPUP ===== */
-.moveto-popup {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.75);
-  z-index: 600;
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  backdrop-filter: blur(4px);
+.flat-img-cell.selected-src .cell-num {
+  background: var(--accent);
 }
-.moveto-popup.active { display: flex; }
-.moveto-box {
-  background: var(--card);
-  border-radius: 24px 24px 0 0;
-  width: 100%;
-  padding: 0 0 calc(var(--safe-bottom) + 16px);
-  max-height: 70dvh;
-  overflow-y: auto;
-}
-.moveto-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 14px auto 0; }
-.moveto-title { font-size: 16px; font-weight: 900; padding: 14px 20px 4px; }
-.moveto-sub { font-size: 12px; color: var(--text2); padding: 0 20px 14px; border-bottom: 1px solid var(--border); }
-.moveto-list { padding: 12px 20px; display: flex; flex-direction: column; gap: 8px; }
-.moveto-item {
+.flat-img-cell .cell-select-ring {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--card2);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
-  cursor: pointer;
-  transition: all 0.15s;
+  justify-content: center;
+  background: rgba(255,107,157,0.18);
+  opacity: 0;
+  transition: opacity 0.15s;
+  font-size: 22px;
 }
-.moveto-item:active { opacity: 0.7; }
-.moveto-item-imgs { display: flex; gap: 3px; }
-.moveto-item-imgs img { width: 28px; height: 28px; border-radius: 5px; object-fit: cover; }
-.moveto-item-label { font-size: 13px; font-weight: 800; color: var(--text); }
-.moveto-item-count { font-size: 11px; color: var(--text2); margin-left: auto; }
-.moveto-cancel {
-  margin: 0 20px;
-  width: calc(100% - 40px);
-  padding: 14px;
-  background: transparent;
+.flat-img-cell.selected-src .cell-select-ring { opacity: 1; }
+
+/* Animated shimmer on selected */
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255,107,157,0.3); }
+  50% { box-shadow: 0 0 0 5px rgba(255,107,157,0.55); }
+}
+.flat-img-cell.selected-src {
+  animation: pulse-border 1.4s ease-in-out infinite;
+}
+
+/* ===== MOVE INPUT POPUP ===== */
+.move-input-popup {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.78);
+  z-index: 600;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+.move-input-popup.active { display: flex; }
+.move-input-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 20px 20px;
+  width: 100%; max-width: 300px;
+  animation: popIn 0.2s ease;
+}
+.move-input-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  background: var(--card2);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.move-input-preview img {
+  width: 52px; height: 52px;
+  border-radius: 9px;
+  object-fit: cover;
+  border: 2px solid var(--accent2);
+}
+.move-input-preview-info { flex: 1; }
+.move-input-preview-label { font-size: 11px; color: var(--text2); font-weight: 700; }
+.move-input-preview-pos {
+  font-size: 16px; font-weight: 900;
+  color: var(--accent2);
+  margin-top: 2px;
+}
+.move-input-title { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
+.move-input-hint { font-size: 12px; color: var(--text2); margin-bottom: 14px; line-height: 1.6; }
+.move-num-input {
+  width: 100%;
+  background: var(--card2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 28px; font-weight: 900;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.move-num-input:focus { border-color: var(--accent2); }
+.move-num-input.valid { border-color: var(--green); }
+.move-num-input.invalid { border-color: var(--accent); }
+.move-input-range { font-size: 12px; color: var(--text2); text-align: center; margin-top: 8px; margin-bottom: 18px; }
+.move-input-actions { display: flex; gap: 10px; }
+.move-btn-confirm {
+  flex: 1; padding: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 15px; font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.move-btn-confirm:disabled { opacity: 0.3; }
+.move-btn-confirm:active { opacity: 0.75; }
+.move-btn-cancel {
+  flex: 1; padding: 14px;
+  background: var(--card2);
   color: var(--text2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-family: inherit;
-  font-size: 14px; font-weight: 700;
+  font-family: inherit; font-size: 15px; font-weight: 700;
   cursor: pointer;
+}
+.move-btn-cancel:active { opacity: 0.75; }
+
+/* Domino animation flash */
+@keyframes flash-green {
+  0% { background: rgba(6,214,160,0.35); }
+  100% { background: transparent; }
+}
+.flat-img-cell.just-moved {
+  animation: flash-green 0.6s ease forwards;
 }
 </style>
 </head>
@@ -832,26 +933,48 @@ input[type="file"] { display: none; }
 
 <input type="file" id="bulkFileInput" accept="image/*" multiple onchange="onBulkFilesChosen(this)" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;z-index:-1;">
 
-<!-- ===== REORDER SHEET ===== -->
+<!-- ===== REORDER SHEET (NEW LOGIC) ===== -->
 <div class="sheet" id="reorderSheet" style="z-index:210;">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">🔀 Sắp xếp lại thủ công</div>
-  <div class="sheet-sub">Nhấn vào ảnh → chọn nhóm muốn chuyển vào</div>
-  <div style="height:14px;"></div>
-  <div class="reorder-group-list" id="reorderGroupList"></div>
+  <div class="sheet-title">🔀 Sắp xếp lại thứ tự ảnh</div>
+  <div class="sheet-sub">Nhấn vào ảnh để chọn → nhập vị trí muốn chuyển đến</div>
+  <div style="height:10px;"></div>
+  <div class="reorder-info-bar" id="reorderInfoBar">
+    Tổng <strong id="reorderTotalCount">0</strong> ảnh · <strong id="reorderGroupCount">0</strong> nhóm (mỗi nhóm tối đa 4 ảnh)
+  </div>
+  <div class="flat-grid-wrap" id="flatGridWrap"></div>
   <div class="sheet-actions" style="margin-top:16px;">
     <button class="btn-main" onclick="closeReorderSheet()" style="background:linear-gradient(135deg,var(--blue),var(--green));">✅ Xong</button>
   </div>
 </div>
 
-<!-- ===== MOVE-TO POPUP ===== -->
-<div class="moveto-popup" id="movetoPopup">
-  <div class="moveto-box">
-    <div class="moveto-handle"></div>
-    <div class="moveto-title">Chuyển ảnh sang nhóm</div>
-    <div class="moveto-sub" id="movetoSub">Chọn nhóm muốn chuyển ảnh vào</div>
-    <div class="moveto-list" id="movetoList"></div>
-    <button class="moveto-cancel" onclick="closeMovetoPopup()">Huỷ</button>
+<!-- ===== MOVE INPUT POPUP ===== -->
+<div class="move-input-popup" id="moveInputPopup">
+  <div class="move-input-box">
+    <div class="move-input-preview">
+      <img id="moveInputThumb" src="">
+      <div class="move-input-preview-info">
+        <div class="move-input-preview-label">Ảnh đang chọn</div>
+        <div class="move-input-preview-pos" id="moveInputCurPos">Vị trí 1</div>
+      </div>
+    </div>
+    <div class="move-input-title">Chuyển đến vị trí số</div>
+    <div class="move-input-hint" id="moveInputHint">Nhập vị trí từ 1 đến <strong id="moveInputMax">1</strong>. Các ảnh giữa sẽ tự dịch chuyển.</div>
+    <input
+      type="number"
+      class="move-num-input"
+      id="moveNumInput"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      min="1"
+      placeholder="—"
+      oninput="onMoveNumInput()"
+    >
+    <div class="move-input-range" id="moveInputRange"></div>
+    <div class="move-input-actions">
+      <button class="move-btn-confirm" id="moveConfirmBtn" onclick="confirmMove()" disabled>Chuyển ✓</button>
+      <button class="move-btn-cancel" onclick="closeMoveInputPopup()">Huỷ</button>
+    </div>
   </div>
 </div>
 
@@ -878,13 +1001,17 @@ let googleToken = localStorage.getItem('gToken') || null;
 let clientId = localStorage.getItem('gClientId') || '756532613645-sqfvg1dsfdnufl5tb4kttmim8ru6lt2l.apps.googleusercontent.com';
 let targetFolderId = localStorage.getItem('gFolderId') || '1feDiRJY-p1ff3cHUfNeQD3rvoqEDjpxX';
 
-let bulkGroups = [];
+let bulkGroups = [];      // array of { files[], urls[] } — grouped view (each ≤ 4)
+let flatList = [];        // SINGLE flat array of { file, url } — source of truth for reorder
+
 let bulkCodes = [];
 let remainingCodes = [];
 let assignedCodes = [];
 let currentAssignIdx = 0;
 let currentSelectedCode = null;
-let reorderSelectedImg = null;
+
+// Reorder state
+let reorderSrcIdx = null; // index in flatList of selected image
 
 // ===== INIT =====
 if (googleToken) {
@@ -910,6 +1037,7 @@ function switchTab(name) {
 // ===== SHEETS =====
 function openBulkImport() {
   bulkGroups = [];
+  flatList = [];
   bulkCodes = [];
   remainingCodes = [];
   assignedCodes = [];
@@ -978,19 +1106,19 @@ async function onBulkFilesChosen(input) {
   const dates = await Promise.all(files.map(f => getExifDate(f)));
   const filesWithDate = files.map((f, i) => ({ file: f, date: dates[i] }));
   filesWithDate.sort((a, b) => a.date - b.date);
-  const sortedFiles = filesWithDate.map(x => x.file);
 
-  bulkGroups = [];
-  for (let i = 0; i < sortedFiles.length; i += 4) {
-    const grpFiles = sortedFiles.slice(i, i + 4);
-    const grpUrls = grpFiles.map(f => URL.createObjectURL(f));
-    bulkGroups.push({ files: grpFiles, urls: grpUrls });
-  }
+  // Build flat list
+  flatList = filesWithDate.map(x => ({
+    file: x.file,
+    url: URL.createObjectURL(x.file)
+  }));
 
+  // Sync to bulkGroups for display
+  syncFlatToGroups();
   renderGroupPreview();
 
-  const remainder = sortedFiles.length % 4;
-  let bannerText = `✅ ${sortedFiles.length} ảnh → ${bulkGroups.length} nhóm (đã sort theo ngày chụp)`;
+  const remainder = flatList.length % 4;
+  let bannerText = `✅ ${flatList.length} ảnh → ${bulkGroups.length} nhóm (đã sort theo ngày chụp)`;
   if (remainder > 0) bannerText += ` · nhóm cuối có ${remainder} ảnh`;
   document.getElementById('importPickedBanner').textContent = bannerText;
   document.getElementById('importPickedInfo').style.display = 'block';
@@ -998,7 +1126,22 @@ async function onBulkFilesChosen(input) {
   input.value = '';
 }
 
+/**
+ * Rebuild bulkGroups from flatList (chunks of 4)
+ */
+function syncFlatToGroups() {
+  bulkGroups = [];
+  for (let i = 0; i < flatList.length; i += 4) {
+    const chunk = flatList.slice(i, i + 4);
+    bulkGroups.push({
+      files: chunk.map(x => x.file),
+      urls:  chunk.map(x => x.url)
+    });
+  }
+}
+
 function renderGroupPreview() {
+  syncFlatToGroups();
   const preview = document.getElementById('importGroupPreview');
   preview.innerHTML = bulkGroups.map((g, gi) => `
     <div style="background:var(--card2);border-radius:12px;padding:8px;">
@@ -1009,7 +1152,7 @@ function renderGroupPreview() {
         ${g.urls.map((url, ii) => `
           <div style="aspect-ratio:1;background:var(--card);border-radius:7px;overflow:hidden;position:relative;">
             <img src="${url}" style="width:100%;height:100%;object-fit:cover;">
-            <div style="position:absolute;top:2px;left:2px;background:rgba(0,0,0,0.7);color:white;font-size:8px;font-weight:800;width:15px;height:15px;border-radius:4px;display:flex;align-items:center;justify-content:center;">${ii+1}</div>
+            <div style="position:absolute;top:2px;left:2px;background:rgba(0,0,0,0.7);color:white;font-size:8px;font-weight:800;width:15px;height:15px;border-radius:4px;display:flex;align-items:center;justify-content:center;">${gi*4+ii+1}</div>
           </div>
         `).join('')}
         ${g.urls.length < 4 ? Array(4 - g.urls.length).fill('<div style="aspect-ratio:1;border:1.5px dashed var(--border);border-radius:7px;"></div>').join('') : ''}
@@ -1018,91 +1161,168 @@ function renderGroupPreview() {
   `).join('');
 }
 
-// ===== REORDER SHEET =====
+// ===== NEW REORDER SHEET =====
+
 function openReorderSheet() {
-  reorderSelectedImg = null;
-  renderReorderSheet();
+  reorderSrcIdx = null;
+  renderFlatGrid();
   document.getElementById('reorderSheet').classList.add('active');
 }
 
 function closeReorderSheet() {
   document.getElementById('reorderSheet').classList.remove('active');
-  renderGroupPreview();
+  renderGroupPreview(); // refresh step-1 preview
 }
 
-function renderReorderSheet() {
-  const list = document.getElementById('reorderGroupList');
-  list.innerHTML = bulkGroups.map((g, gi) => `
-    <div class="reorder-group">
-      <div class="reorder-group-title">Nhóm ${gi+1}</div>
-      <div class="reorder-img-row">
-        ${g.urls.map((url, ii) => `
-          <div class="reorder-img-cell ${reorderSelectedImg && reorderSelectedImg.groupIdx===gi && reorderSelectedImg.imgIdx===ii ? 'selected-img' : ''}"
-               onclick="selectReorderImg(${gi}, ${ii})">
-            <img src="${url}">
-            <div class="img-pos">${ii+1}</div>
-          </div>
-        `).join('')}
-        ${g.urls.length < 4 ? Array(4 - g.urls.length).fill('<div class="reorder-img-cell empty-slot"></div>').join('') : ''}
-      </div>
-    </div>
-  `).join('');
-}
+/** Render the flat grid (all images as one flat sequence, grouped visually by 4) */
+function renderFlatGrid() {
+  const total = flatList.length;
+  const numGroups = Math.ceil(total / 4);
 
-function selectReorderImg(groupIdx, imgIdx) {
-  reorderSelectedImg = { groupIdx, imgIdx };
-  renderReorderSheet();
-  openMovetoPopup(groupIdx, imgIdx);
-}
+  document.getElementById('reorderTotalCount').textContent = total;
+  document.getElementById('reorderGroupCount').textContent = numGroups;
 
-function openMovetoPopup(fromGroup, fromImg) {
-  const img = bulkGroups[fromGroup].urls[fromImg];
-  document.getElementById('movetoSub').innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-      <img src="${img}" style="width:36px;height:36px;border-radius:7px;object-fit:cover;">
-      <span>Ảnh ${fromImg+1} của Nhóm ${fromGroup+1} → chuyển sang:</span>
-    </div>
-  `;
+  const wrap = document.getElementById('flatGridWrap');
+  let html = '';
 
-  const list = document.getElementById('movetoList');
-  list.innerHTML = bulkGroups.map((g, gi) => {
-    if (gi === fromGroup) return '';
-    return `
-      <div class="moveto-item" onclick="moveImgToGroup(${fromGroup}, ${fromImg}, ${gi})">
-        <div class="moveto-item-imgs">
-          ${g.urls.slice(0,3).map(u => `<img src="${u}">`).join('')}
+  for (let g = 0; g < numGroups; g++) {
+    html += `<div class="flat-group">`;
+    html += `<div class="flat-group-label">Nhóm ${g+1}</div>`;
+    html += `<div class="flat-img-row">`;
+
+    for (let slot = 0; slot < 4; slot++) {
+      const flatIdx = g * 4 + slot;
+      if (flatIdx >= total) {
+        // empty slot
+        html += `<div class="flat-img-cell" style="border:2px dashed var(--border);cursor:default;"></div>`;
+        continue;
+      }
+      const item = flatList[flatIdx];
+      const isSelected = reorderSrcIdx === flatIdx;
+      html += `
+        <div class="flat-img-cell ${isSelected ? 'selected-src' : ''}"
+             id="fcell-${flatIdx}"
+             onclick="selectFlatImg(${flatIdx})">
+          <img src="${item.url}" loading="lazy">
+          <div class="cell-num">${flatIdx + 1}</div>
+          <div class="cell-select-ring">✦</div>
         </div>
-        <div class="moveto-item-label">Nhóm ${gi+1}</div>
-        <div class="moveto-item-count">${g.files.length} ảnh</div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }
 
-  document.getElementById('movetoPopup').classList.add('active');
-}
-
-function closeMovetoPopup() {
-  document.getElementById('movetoPopup').classList.remove('active');
-  reorderSelectedImg = null;
-  renderReorderSheet();
-}
-
-function moveImgToGroup(fromGroup, fromImg, toGroup) {
-  const file = bulkGroups[fromGroup].files[fromImg];
-  const url  = bulkGroups[fromGroup].urls[fromImg];
-
-  bulkGroups[fromGroup].files.splice(fromImg, 1);
-  bulkGroups[fromGroup].urls.splice(fromImg, 1);
-
-  bulkGroups[toGroup].files.push(file);
-  bulkGroups[toGroup].urls.push(url);
-
-  if (bulkGroups[fromGroup].files.length === 0) {
-    bulkGroups.splice(fromGroup, 1);
+    html += `</div></div>`;
   }
 
-  closeMovetoPopup();
-  showToast(`✅ Đã chuyển ảnh sang Nhóm ${toGroup+1}`);
+  wrap.innerHTML = html;
+}
+
+function selectFlatImg(flatIdx) {
+  if (reorderSrcIdx === flatIdx) {
+    // tap again = deselect
+    reorderSrcIdx = null;
+    renderFlatGrid();
+    return;
+  }
+  reorderSrcIdx = flatIdx;
+  renderFlatGrid();
+
+  // Scroll selected into view
+  setTimeout(() => {
+    const el = document.getElementById('fcell-' + flatIdx);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 80);
+
+  openMoveInputPopup(flatIdx);
+}
+
+// ===== MOVE INPUT POPUP =====
+
+function openMoveInputPopup(srcIdx) {
+  const total = flatList.length;
+  const item = flatList[srcIdx];
+
+  document.getElementById('moveInputThumb').src = item.url;
+  document.getElementById('moveInputCurPos').textContent = `Vị trí ${srcIdx + 1}  →  Nhóm ${Math.floor(srcIdx/4)+1}, ảnh ${(srcIdx%4)+1}`;
+  document.getElementById('moveInputMax').textContent = total;
+  document.getElementById('moveInputHint').innerHTML = `Nhập vị trí từ <strong>1</strong> đến <strong>${total}</strong>. Các ảnh giữa sẽ tự dịch chuyển.`;
+  document.getElementById('moveInputRange').textContent = `Hiện tại: vị trí ${srcIdx + 1}`;
+
+  const input = document.getElementById('moveNumInput');
+  input.value = '';
+  input.max = total;
+  input.min = 1;
+  input.className = 'move-num-input';
+  document.getElementById('moveConfirmBtn').disabled = true;
+
+  document.getElementById('moveInputPopup').classList.add('active');
+
+  setTimeout(() => input.focus(), 100);
+}
+
+function closeMoveInputPopup() {
+  document.getElementById('moveInputPopup').classList.remove('active');
+  reorderSrcIdx = null;
+  renderFlatGrid();
+}
+
+function onMoveNumInput() {
+  const input = document.getElementById('moveNumInput');
+  const val = parseInt(input.value);
+  const total = flatList.length;
+  const btn = document.getElementById('moveConfirmBtn');
+  const range = document.getElementById('moveInputRange');
+
+  if (isNaN(val) || val < 1 || val > total) {
+    input.className = 'move-num-input' + (input.value.length > 0 ? ' invalid' : '');
+    btn.disabled = true;
+    range.textContent = input.value.length > 0 ? `❌ Phải từ 1 đến ${total}` : '';
+    return;
+  }
+
+  if (reorderSrcIdx !== null && val === reorderSrcIdx + 1) {
+    input.className = 'move-num-input';
+    btn.disabled = true;
+    range.textContent = `Đây đã là vị trí hiện tại`;
+    return;
+  }
+
+  input.className = 'move-num-input valid';
+  btn.disabled = false;
+
+  const destGroup = Math.floor((val - 1) / 4) + 1;
+  const destSlot  = ((val - 1) % 4) + 1;
+  range.textContent = `→ Nhóm ${destGroup}, ảnh thứ ${destSlot}`;
+}
+
+function confirmMove() {
+  const input = document.getElementById('moveNumInput');
+  const destPos = parseInt(input.value); // 1-based
+  if (isNaN(destPos) || reorderSrcIdx === null) return;
+
+  const srcIdx  = reorderSrcIdx;
+  const destIdx = destPos - 1; // 0-based
+
+  // Splice out from src, insert at dest
+  const [item] = flatList.splice(srcIdx, 1);
+  flatList.splice(destIdx, 0, item);
+
+  document.getElementById('moveInputPopup').classList.remove('active');
+  reorderSrcIdx = null;
+
+  renderFlatGrid();
+  syncFlatToGroups();
+
+  // Flash the moved cell
+  setTimeout(() => {
+    const el = document.getElementById('fcell-' + destIdx);
+    if (el) {
+      el.classList.add('just-moved');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => el.classList.remove('just-moved'), 700);
+    }
+  }, 50);
+
+  showToast(`✅ Ảnh đã chuyển từ vị trí ${srcIdx+1} → ${destPos}`);
 }
 
 // ===== STEP 2 =====
@@ -1278,34 +1498,6 @@ function updateExportTab() {
   zipBtn.disabled = !(products.length > 0);
 }
 
-function saveFolderId() {
-  const raw = document.getElementById('folderIdInput').value.trim();
-  targetFolderId = parseFolderId(raw);
-  localStorage.setItem('gFolderId', targetFolderId);
-  updateFolderIdPreview();
-}
-
-function parseFolderId(input) {
-  const match = input.match(/folders\/([a-zA-Z0-9_-]+)/);
-  if (match) return match[1];
-  return input.trim();
-}
-
-function updateFolderIdPreview() {
-  const raw = document.getElementById('folderIdInput').value.trim();
-  const parsed = parseFolderId(raw);
-  const el = document.getElementById('folderIdPreview');
-  if (!parsed) { el.textContent = ''; return; }
-  if (raw !== parsed) { el.textContent = `✅ Đã nhận folder ID: ${parsed}`; el.style.color = 'var(--green)'; }
-  else { el.textContent = `📂 Folder ID: ${parsed}`; el.style.color = 'var(--text2)'; }
-  targetFolderId = parsed;
-}
-
-function saveClientId() {
-  clientId = document.getElementById('clientIdInput').value.trim();
-  localStorage.setItem('gClientId', clientId);
-}
-
 function loginGoogle() {
   if (!clientId) { showToast('⚠️ Vào tab Cài đặt để nhập Client ID trước'); switchTab('setup'); return; }
   const redirectUri = window.location.href.split('?')[0].split('#')[0];
@@ -1313,8 +1505,6 @@ function loginGoogle() {
   const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}&prompt=consent`;
   window.location.href = url;
 }
-
-function testDriveLogin() { saveClientId(); saveFolderId(); loginGoogle(); }
 
 (function checkToken() {
   const hash = window.location.hash;
